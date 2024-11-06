@@ -103,7 +103,7 @@ public class TabelaHash<K, V> {
         if (tipoFuncaoHash.equals("divisao")) {
             hashCode = hashDivisao(chave.toString(), capacidade);
         } else if (tipoFuncaoHash.equals("djb2")) {
-            hashCode = funcaoHashDJB2(chave);
+            hashCode = hashDJB2(chave.toString());
         }
         return Math.abs(hashCode) % capacidade;
     }
@@ -117,14 +117,13 @@ public class TabelaHash<K, V> {
         return soma % M;
     }
 
-    // Função de hash DJB2 existente
-    private int funcaoHashDJB2(K chave) {
-        String str = chave.toString();
-        int hash = 5381;
-        for (int i = 0; i < str.length(); i++) {
-            hash = ((hash << 5) + hash) + str.charAt(i);
+    // Função de hash DJB2 atualizada
+    private int hashDJB2(String texto) {
+        long hash = 5381;
+        for (char c : texto.toCharArray()) {
+            hash = ((hash << 5) + hash) + c; // hash * 33 + c
         }
-        return hash;
+        return (int) (hash % Integer.MAX_VALUE);
     }
 
     // Método para redimensionar a tabela quando o fator de carga é excedido
