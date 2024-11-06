@@ -23,3 +23,36 @@ public class ProcessadorDeDocumentos {
         }
         conteudo = sb.toString();
     }
+
+    // Processa o documento carregado: limpa, normaliza e separa em palavras
+    public List<String> processarDocumento() {
+        if (conteudo == null || conteudo.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // Normalizar texto: remover acentos e caracteres especiais
+        String textoNormalizado = Normalizer.normalize(conteudo, Normalizer.Form.NFD)
+                .replaceAll("[\\p{InCombiningDiacriticalMarks}]", "")
+                .toLowerCase();
+
+        // Remover caracteres não alfanuméricos
+        textoNormalizado = textoNormalizado.replaceAll("[^\\p{L}\\p{N}\\s]", " ");
+
+        // Dividir em palavras usando espaço como delimitador
+        String[] palavrasArray = textoNormalizado.split("\\s+");
+
+        List<String> palavras = new ArrayList<>();
+        for (String palavra : palavrasArray) {
+            if (!palavra.isEmpty()) {
+                palavras.add(palavra);
+            }
+        }
+
+        return palavras;
+    }
+
+    // Retorna o conteúdo original do documento
+    public String getConteudo() {
+        return conteudo;
+    }
+}
