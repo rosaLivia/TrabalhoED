@@ -2,8 +2,21 @@ package main.java.hashing;
 
 public class TabelaHash<K, V> {
 
-    // Construtor que define o tamanho e a função de hash (divisão ou DJB2)
-    public TabelaHash(int tamanho, String tipoFuncaoHash);
+    private static final int TAMANHO_INICIAL = 16;
+    private static final double FATOR_CARGA = 0.75;
+
+    private EntradaHash<K, V>[] tabela;
+    private int tamanho;
+    private int capacidade;
+    private String tipoFuncaoHash;
+
+    // Construtor que define a função de hash (divisão ou DJB2)
+    public TabelaHash(String tipoFuncaoHash) {
+        this.capacidade = TAMANHO_INICIAL;
+        this.tabela = new EntradaHash[capacidade];
+        this.tipoFuncaoHash = tipoFuncaoHash.toLowerCase();
+        this.tamanho = 0;
+    }
 
     // Insere um elemento na tabela hash
     public void inserir(K chave, V valor);
