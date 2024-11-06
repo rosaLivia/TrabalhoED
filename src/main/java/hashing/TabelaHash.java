@@ -31,11 +31,49 @@ public class TabelaHash<K, V> {
         }
     }
 
-    // Insere um elemento na tabela hash
-    public void inserir(K chave, V valor);
+    // Método para inserir um elemento na tabela hash
+    public void inserir(K chave, V valor) {
+        int indice = calcularIndice(chave);
+        EntradaHash<K, V> novaEntrada = new EntradaHash<>(chave, valor, null);
 
-    // Busca um elemento pela chave
-    public V buscar(K chave);
+        if (tabela[indice] == null) {
+            tabela[indice] = novaEntrada;
+        } else {
+            EntradaHash<K, V> atual = tabela[indice];
+            while (atual != null) {
+                if (atual.chave.equals(chave)) {
+                    // Atualiza o valor se a chave já existir
+                    atual.valor = valor;
+                    return;
+                }
+                if (atual.proximo == null) {
+                    atual.proximo = novaEntrada;
+                    break;
+                }
+                atual = atual.proximo;
+            }
+        }
+        tamanho++;
+
+        // Redimensiona a tabela se necessário
+        if ((1.0 * tamanho) / capacidade >= FATOR_CARGA) {
+            redimensionarTabela();
+        }
+    }
+
+    // Método para buscar um elemento pela chave
+    public V buscar(K chave) {
+        int indice = calcularIndice(chave);
+        EntradaHash<K, V> atual = tabela[indice];
+
+        while (atual != null) {
+            if (atual.chave.equals(chave)) {
+                return atual.valor;
+            }
+            atual = atual.proximo;
+        }
+        return null; // Retorna null se não encontrar
+    }
 
     // Remove um elemento pela chave
     public void remover(K chave);
