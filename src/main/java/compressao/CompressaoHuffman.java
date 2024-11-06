@@ -58,4 +58,60 @@ public class CompressaoHuffman {
         }
     }
 
+    // Método para comprimir o texto
+    public byte[] comprimir(String texto) {
+        // Construir a árvore e gerar a tabela
+        construirArvore(texto);
+
+        // Codificar o texto
+        StringBuilder textoCodificado = new StringBuilder();
+        for (char c : texto.toCharArray()) {
+            textoCodificado.append(tabelaHuffman.get(c));
+        }
+
+        // Converter a sequência de bits em um array de bytes
+        int comprimento = textoCodificado.length();
+        BitSet bits = new BitSet(comprimento);
+        for (int i = 0; i < comprimento; i++) {
+            if (textoCodificado.charAt(i) == '1') {
+                bits.set(i);
+            }
+        }
+
+        // Converter BitSet em array de bytes
+        byte[] bytes = bits.toByteArray();
+
+        return bytes;
+    }
+
+    // Método para descomprimir o texto
+    public String descomprimir(byte[] bytes) {
+        // Converter array de bytes em sequência de bits
+        BitSet bits = BitSet.valueOf(bytes);
+        StringBuilder textoDescomprimido = new StringBuilder();
+
+        NoHuffman noAtual = raiz;
+        for (int i = 0; i <= bits.length(); i++) {
+            boolean bit = bits.get(i);
+            if (bit) {
+                noAtual = noAtual.direita;
+            } else {
+                noAtual = noAtual.esquerda;
+            }
+
+            // Se for um nó folha
+            if (noAtual.esquerda == null && noAtual.direita == null) {
+                textoDescomprimido.append(noAtual.caractere);
+                noAtual = raiz;
+            }
+        }
+
+        return textoDescomprimido.toString();
+    }
+
+    // Método para salvar a árvore de Huffman em um arquivo
+    public void salvarArvore(ObjectOutputStream out) throws IOException {
+        salvarNo(out, raiz);
+    }
+
 }
