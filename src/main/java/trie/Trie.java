@@ -18,3 +18,35 @@ public class Trie {
         palavra = palavra.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
         return palavra;
     }
+
+    // Insere uma palavra na Trie, associando-a a um documento
+    public void inserir(String palavra, String documentoId) {
+        palavra = normalizarPalavra(palavra);
+        TrieNode noAtual = raiz;
+
+        for (char caractere : palavra.toCharArray()) {
+            noAtual = noAtual.getFilhos().computeIfAbsent(caractere, c -> new TrieNode());
+        }
+        noAtual.setFimDaPalavra(true);
+        noAtual.getDocumentos().add(documentoId);
+    }
+
+    // Busca uma palavra na Trie e retorna a lista de documentos onde aparece
+    public List<String> buscar(String palavra) {
+        palavra = normalizarPalavra(palavra);
+        TrieNode noAtual = raiz;
+
+        for (char caractere : palavra.toCharArray()) {
+            noAtual = noAtual.getFilhos().get(caractere);
+            if (noAtual == null) {
+                return new ArrayList<>(); // Palavra não encontrada
+            }
+        }
+
+        if (noAtual.isFimDaPalavra()) {
+            return new ArrayList<>(noAtual.getDocumentos());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+}
