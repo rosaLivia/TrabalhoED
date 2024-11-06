@@ -75,8 +75,42 @@ public class TabelaHash<K, V> {
         return null; // Retorna null se não encontrar
     }
 
-    // Remove um elemento pela chave
-    public void remover(K chave);
+    // Método para remover um elemento pela chave
+    public void remover(K chave) {
+        int indice = calcularIndice(chave);
+        EntradaHash<K, V> atual = tabela[indice];
+        EntradaHash<K, V> anterior = null;
+
+        while (atual != null) {
+            if (atual.chave.equals(chave)) {
+                if (anterior == null) {
+                    tabela[indice] = atual.proximo;
+                } else {
+                    anterior.proximo = atual.proximo;
+                }
+                tamanho--;
+                return;
+            }
+            anterior = atual;
+            atual = atual.proximo;
+        }
+    }
+
+    // Método para calcular o índice baseado na chave e na função de hash escolhida
+    private int calcularIndice(K chave) {
+        int hashCode = 0;
+        if (tipoFuncaoHash.equals("divisao")) {
+            hashCode = funcaoHashDivisao(chave);
+        } else if (tipoFuncaoHash.equals("djb2")) {
+            hashCode = funcaoHashDJB2(chave);
+        }
+        return Math.abs(hashCode) % capacidade;
+    }
+
+    // Função de hash por divisão
+    private int funcaoHashDivisao(K chave) {
+        return chave.hashCode();
+    }
 
     // Função de hash por divisão
     private int funcaoHashDivisao(K chave);
