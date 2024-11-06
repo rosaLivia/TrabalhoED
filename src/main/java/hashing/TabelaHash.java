@@ -107,14 +107,38 @@ public class TabelaHash<K, V> {
         return Math.abs(hashCode) % capacidade;
     }
 
-    // Função de hash por divisão
-    private int funcaoHashDivisao(K chave) {
-        return chave.hashCode();
+    // Função de hash DJB2
+    private int funcaoHashDJB2(K chave) {
+        String str = chave.toString();
+        int hash = 5381;
+        for (int i = 0; i < str.length(); i++) {
+            hash = ((hash << 5) + hash) + str.charAt(i);
+        }
+        return hash;
     }
 
-    // Função de hash por divisão
-    private int funcaoHashDivisao(K chave);
+    // Método para redimensionar a tabela quando o fator de carga é excedido
+    private void redimensionarTabela() {
+        capacidade *= 2;
+        EntradaHash<K, V>[] tabelaAntiga = tabela;
+        tabela = new EntradaHash[capacidade];
+        tamanho = 0;
 
-    // Função de hash DJB2
-    private int funcaoHashDJB2(K chave);
+        for (EntradaHash<K, V> entrada : tabelaAntiga) {
+            while (entrada != null) {
+                inserir(entrada.chave, entrada.valor);
+                entrada = entrada.proximo;
+            }
+        }
+    }
+
+    // Método para obter o número de elementos na tabela
+    public int getTamanho() {
+        return tamanho;
+    }
+
+    // Método para verificar se a tabela está vazia
+    public boolean estaVazia() {
+        return tamanho == 0;
+    }
 }
