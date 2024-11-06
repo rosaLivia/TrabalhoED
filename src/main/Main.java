@@ -9,7 +9,6 @@ import main.java.compressao.CompressaoHuffman;
 import main.java.processamento.ProcessadorDeDocumentos;
 
 public class Main {
-
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         String diretorioDocumentos;
@@ -40,6 +39,7 @@ public class Main {
         // Processar os documentos
         File pasta = new File(diretorioDocumentos);
         File[] listaArquivos = pasta.listFiles((dir, name) -> name.endsWith(".txt"));
+
         if (listaArquivos != null && listaArquivos.length > 0) {
             for (File arquivo : listaArquivos) {
                 try {
@@ -71,5 +71,28 @@ public class Main {
             scanner.close();
             return;
         }
+
+        // Loop principal para buscas
+        while (true) {
+            System.out.println("\nDigite a palavra a ser pesquisada (ou 'sair' para encerrar):");
+            String palavraBusca = scanner.nextLine();
+            if (palavraBusca.equalsIgnoreCase("sair")) {
+                break;
+            }
+
+            // Buscar nos documentos
+            var documentosEncontrados = trie.buscar(palavraBusca);
+            if (documentosEncontrados.isEmpty()) {
+                System.out.println("Palavra não encontrada nos documentos.");
+            } else {
+                System.out.println("A palavra '" + palavraBusca + "' foi encontrada nos seguintes documentos:");
+                for (String doc : documentosEncontrados) {
+                    System.out.println("- " + doc);
+                }
+            }
+        }
+
+        scanner.close();
+        System.out.println("Encerrando o sistema.");
     }
 }
