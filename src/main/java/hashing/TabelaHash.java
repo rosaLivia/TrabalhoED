@@ -1,7 +1,8 @@
 package main.java.hashing;
 
-public class TabelaHash<K, V> {
+import java.util.Objects;
 
+public class TabelaHash<K, V> {
     private static final int TAMANHO_INICIAL = 16;
     private static final double FATOR_CARGA = 0.75;
 
@@ -10,7 +11,7 @@ public class TabelaHash<K, V> {
     private int capacidade;
     private String tipoFuncaoHash;
 
-    // Construtor que define a função de hash (divisão ou DJB2)
+    // Construtor que define a função de hash (divisao ou DJB2)
     public TabelaHash(String tipoFuncaoHash) {
         this.capacidade = TAMANHO_INICIAL;
         this.tabela = new EntradaHash[capacidade];
@@ -100,14 +101,23 @@ public class TabelaHash<K, V> {
     private int calcularIndice(K chave) {
         int hashCode = 0;
         if (tipoFuncaoHash.equals("divisao")) {
-            hashCode = funcaoHashDivisao(chave);
+            hashCode = hashDivisao(chave.toString(), capacidade);
         } else if (tipoFuncaoHash.equals("djb2")) {
             hashCode = funcaoHashDJB2(chave);
         }
         return Math.abs(hashCode) % capacidade;
     }
 
-    // Função de hash DJB2
+    // Função de hash por Divisão conforme especificado
+    public int hashDivisao(String texto, int M) {
+        int soma = 0;
+        for (char c : texto.toCharArray()) {
+            soma += (int) c;
+        }
+        return soma % M;
+    }
+
+    // Função de hash DJB2 existente
     private int funcaoHashDJB2(K chave) {
         String str = chave.toString();
         int hash = 5381;
@@ -115,11 +125,6 @@ public class TabelaHash<K, V> {
             hash = ((hash << 5) + hash) + str.charAt(i);
         }
         return hash;
-    }
-
-    // Função de hash por divisão
-    private int funcaoHashDivisao(K chave) {
-        return chave.hashCode();
     }
 
     // Método para redimensionar a tabela quando o fator de carga é excedido
