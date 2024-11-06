@@ -18,6 +18,19 @@ public class TabelaHash<K, V> {
         this.tamanho = 0;
     }
 
+    // Classe interna para os pares chave-valor
+    private static class EntradaHash<K, V> {
+        K chave;
+        V valor;
+        EntradaHash<K, V> proximo;
+
+        public EntradaHash(K chave, V valor, EntradaHash<K, V> proximo) {
+            this.chave = chave;
+            this.valor = valor;
+            this.proximo = proximo;
+        }
+    }
+
     // Insere um elemento na tabela hash
     public void inserir(K chave, V valor);
 
