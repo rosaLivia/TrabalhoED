@@ -114,4 +114,36 @@ public class CompressaoHuffman {
         salvarNo(out, raiz);
     }
 
+    private void salvarNo(ObjectOutputStream out, NoHuffman no) throws IOException {
+        if (no == null) {
+            out.writeBoolean(false);
+            return;
+        }
+        out.writeBoolean(true);
+        out.writeChar(no.caractere);
+        out.writeInt(no.frequencia);
+        salvarNo(out, no.esquerda);
+        salvarNo(out, no.direita);
+    }
+
+    // Método para carregar a árvore de Huffman de um arquivo
+    public void carregarArvore(ObjectInputStream in) throws IOException {
+        raiz = carregarNo(in);
+        tabelaHuffman = new HashMap<>();
+        gerarCodigos(raiz, "");
+    }
+
+    private NoHuffman carregarNo(ObjectInputStream in) throws IOException {
+        boolean temNo = in.readBoolean();
+        if (!temNo) {
+            return null;
+        }
+        char caractere = in.readChar();
+        int frequencia = in.readInt();
+        NoHuffman no = new NoHuffman(caractere, frequencia);
+        no.esquerda = carregarNo(in);
+        no.direita = carregarNo(in);
+        return no;
+    }
+
 }
