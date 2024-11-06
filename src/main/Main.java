@@ -3,6 +3,7 @@ package main;
 import java.util.Scanner;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import main.java.hashing.TabelaHash;
 import main.java.trie.Trie;
 import main.java.compressao.CompressaoHuffman;
@@ -45,16 +46,17 @@ public class Main {
                 try {
                     // Carregar o conteúdo do arquivo
                     ProcessadorDeDocumentos processador = new ProcessadorDeDocumentos();
-                    String conteudo = processador.carregarDocumento(arquivo.getAbsolutePath());
+                    processador.carregarDocumento(arquivo.getAbsolutePath());
+                    List<String> palavras = processador.processarDocumento();
+                    // Utilize a lista de palavras conforme necessário
 
                     // Comprimir o conteúdo
-                    byte[] conteudoComprimido = compressao.comprimir(conteudo);
+                    byte[] conteudoComprimido = compressao.comprimir(String.join(" ", palavras));
 
                     // Inserir na tabela hash
                     tabelaHash.inserir(arquivo.getName(), conteudoComprimido);
 
                     // Inserir palavras na trie
-                    String[] palavras = conteudo.split("\\W+");
                     for (String palavra : palavras) {
                         if (!palavra.isEmpty()) {
                             trie.inserir(palavra, arquivo.getName());
