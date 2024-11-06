@@ -1,10 +1,20 @@
 package main.java.trie;
 
+import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.List;
+
 public class Trie {
+    private TrieNode raiz;
 
-    // Insere uma palavra na trie
-    public void inserir(String palavra);
+    public Trie() {
+        this.raiz = new TrieNode();
+    }
 
-    // Busca uma palavra na trie
-    public boolean buscar(String palavra);
-}
+    // Normaliza a palavra (remove acentuação e converte para minúsculas)
+    private String normalizarPalavra(String palavra) {
+        palavra = palavra.toLowerCase();
+        palavra = Normalizer.normalize(palavra, Normalizer.Form.NFD);
+        palavra = palavra.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+        return palavra;
+    }
