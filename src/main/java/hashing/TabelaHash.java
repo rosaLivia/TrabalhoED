@@ -117,6 +117,11 @@ public class TabelaHash<K, V> {
         return hash;
     }
 
+    // Função de hash por divisão
+    private int funcaoHashDivisao(K chave) {
+        return chave.hashCode();
+    }
+
     // Método para redimensionar a tabela quando o fator de carga é excedido
     private void redimensionarTabela() {
         capacidade *= 2;
