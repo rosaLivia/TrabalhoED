@@ -18,5 +18,27 @@ public class Main {
         Trie trie = new Trie();
         CompressaoHuffman compressao = new CompressaoHuffman();
 
+        System.out.println("=== Sistema de Indexação de Textos ===");
+        System.out.print("Digite o diretório dos documentos: ");
+        diretorioDocumentos = scanner.nextLine();
+
+        System.out.println("Escolha a função de hash:");
+        System.out.println("1 - Divisão");
+        System.out.println("2 - DJB2");
+        System.out.print("Opção: ");
+        int opcaoHash = scanner.nextInt();
+        scanner.nextLine(); // Consumir a quebra de linha
+
+        if (opcaoHash == 1) {
+            tipoFuncaoHash = "divisao";
+        } else {
+            tipoFuncaoHash = "djb2";
+        }
+
+        tabelaHash = new TabelaHash<>(tipoFuncaoHash);
+
+        // Processar os documentos
+        File pasta = new File(diretorioDocumentos);
+        File[] listaArquivos = pasta.listFiles((dir, name) -> name.endsWith(".txt"));
     }
 }
