@@ -1,3 +1,20 @@
+# Ignorar arquivos temporários do Java
+*.class
+*.jar
+*.war
+*.ear
+/target/
+/bin/
+/build/
+
+# Ignorar arquivos de configuração do IDE
+/.idea/
+/*.iml
+
+# Outros
+*.log
+*.tmp
+*.swp
 
 src/main/java/hashing/tabela.txt]
 *.pdf
