@@ -48,16 +48,12 @@ public class Main {
         if (listaArquivos != null && listaArquivos.length > 0) {
             for (File arquivo : listaArquivos) {
                 try {
-                    // Carregar o conteúdo do arquivo
                     ProcessadorDeDocumentos processador = new ProcessadorDeDocumentos();
                     processador.carregarDocumento(arquivo.getAbsolutePath());
                     List<String> palavras = processador.processarDocumento();
-                    // Utilize a lista de palavras conforme necessário
 
-                    // Comprimir o conteúdo
                     byte[] conteudoComprimido = compressao.comprimir(String.join(" ", palavras));
 
-                    // Inserir na tabela hash
                     tabelaHash.inserir(arquivo.getName(), conteudoComprimido);
 
                     // Inserir palavras na trie
@@ -82,9 +78,9 @@ public class Main {
         long memoriaFinalIndexacao = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         System.out.println("Tempo de indexação: " + (fimIndexacao - inicioIndexacao) + " ms");
         System.out.println(
-                "Consumo de memória na indexação: " + (memoriaFinalIndexacao - memoriaInicialIndexacao) + " bytes");
+                "Consumo de memória na indexação: " + (memoriaFinalIndexacao - memoriaInicialIndexacao) / (1024 * 1024)
+                        + " MB");
 
-        // Loop principal para buscas
         while (true) {
             System.out.println("\nDigite a palavra a ser pesquisada (ou 'sair' para encerrar):");
             String palavraBusca = scanner.nextLine();
@@ -110,7 +106,8 @@ public class Main {
             long fimBusca = System.currentTimeMillis();
             long memoriaFinalBusca = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
             System.out.println("Tempo de busca: " + (fimBusca - inicioBusca) + " ms");
-            System.out.println("Consumo de memória na busca: " + (memoriaFinalBusca - memoriaInicialBusca) + " bytes");
+            System.out.println("Consumo de memória na busca: "
+                    + (memoriaFinalBusca - memoriaInicialBusca) / (1024 * 1024) + " MB");
         }
 
         scanner.close();
