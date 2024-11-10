@@ -16,19 +16,16 @@ public class CompressaoHuffman {
 
     // Método para construir a árvore de Huffman e gerar a tabela de códigos
     private void construirArvore(String texto) {
-        // Contar frequências
         Map<Character, Integer> frequencias = new HashMap<>();
         for (char c : texto.toCharArray()) {
             frequencias.put(c, frequencias.getOrDefault(c, 0) + 1);
         }
 
-        // Criar fila de prioridade
         PriorityQueue<NoHuffman> fila = new PriorityQueue<>();
         for (Map.Entry<Character, Integer> entrada : frequencias.entrySet()) {
             fila.add(new NoHuffman(entrada.getKey(), entrada.getValue()));
         }
 
-        // Construir a árvore
         while (fila.size() > 1) {
             NoHuffman no1 = fila.poll();
             NoHuffman no2 = fila.poll();
@@ -42,14 +39,13 @@ public class CompressaoHuffman {
 
         raiz = fila.poll();
 
-        // Gerar códigos de Huffman
         gerarCodigos(raiz, "");
     }
 
     // Método recursivo para gerar os códigos de Huffman para cada caractere
     private void gerarCodigos(NoHuffman no, String codigo) {
         if (no != null) {
-            // Se o nó é uma folha
+
             if (no.esquerda == null && no.direita == null) {
                 tabelaHuffman.put(no.caractere, codigo);
             }
@@ -60,10 +56,7 @@ public class CompressaoHuffman {
 
     // Método para comprimir o texto
     public byte[] comprimir(String texto) {
-        // Construir a árvore e gerar a tabela
         construirArvore(texto);
-
-        // Codificar o texto
         StringBuilder textoCodificado = new StringBuilder();
         for (char c : texto.toCharArray()) {
             textoCodificado.append(tabelaHuffman.get(c));
@@ -99,7 +92,6 @@ public class CompressaoHuffman {
                 noAtual = noAtual.esquerda;
             }
 
-            // Se for um nó folha
             if (noAtual.esquerda == null && noAtual.direita == null) {
                 textoDescomprimido.append(noAtual.caractere);
                 noAtual = raiz;
