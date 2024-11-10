@@ -18,3 +18,4 @@
 
 src/main/java/hashing/tabela.txt]
 *.pdf
+/out/
