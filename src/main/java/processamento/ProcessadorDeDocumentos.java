@@ -50,8 +50,6 @@ public class ProcessadorDeDocumentos {
 
         return palavras;
     }
-
-    // Retorna o conteúdo original do documento
     public String getConteudo() {
         return conteudo;
     }
