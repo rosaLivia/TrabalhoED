@@ -37,6 +37,10 @@ public class Main {
 
         tabelaHash = new TabelaHash<>(tipoFuncaoHash);
 
+        // Medir tempo de indexação
+        long inicioIndexacao = System.currentTimeMillis();
+        long memoriaInicialIndexacao = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+
         // Processar os documentos
         File pasta = new File(diretorioDocumentos);
         File[] listaArquivos = pasta.listFiles((dir, name) -> name.endsWith(".txt"));
@@ -74,6 +78,12 @@ public class Main {
             return;
         }
 
+        long fimIndexacao = System.currentTimeMillis();
+        long memoriaFinalIndexacao = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        System.out.println("Tempo de indexação: " + (fimIndexacao - inicioIndexacao) + " ms");
+        System.out.println(
+                "Consumo de memória na indexação: " + (memoriaFinalIndexacao - memoriaInicialIndexacao) + " bytes");
+
         // Loop principal para buscas
         while (true) {
             System.out.println("\nDigite a palavra a ser pesquisada (ou 'sair' para encerrar):");
@@ -81,6 +91,10 @@ public class Main {
             if (palavraBusca.equalsIgnoreCase("sair")) {
                 break;
             }
+
+            // Medir tempo de busca
+            long inicioBusca = System.currentTimeMillis();
+            long memoriaInicialBusca = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
             // Buscar nos documentos
             var documentosEncontrados = trie.buscar(palavraBusca);
@@ -92,6 +106,11 @@ public class Main {
                     System.out.println("- " + doc);
                 }
             }
+
+            long fimBusca = System.currentTimeMillis();
+            long memoriaFinalBusca = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+            System.out.println("Tempo de busca: " + (fimBusca - inicioBusca) + " ms");
+            System.out.println("Consumo de memória na busca: " + (memoriaFinalBusca - memoriaInicialBusca) + " bytes");
         }
 
         scanner.close();
