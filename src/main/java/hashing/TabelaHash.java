@@ -2,7 +2,7 @@ package main.java.hashing;
 
 import java.util.Objects;
 
-public class TabelaHash<K, V> {
+public class TabelaHash<K, V extends TabelaHash.ValorComArvore<byte[]>> {
     private static final int TAMANHO_INICIAL = 16;
     private static final double FATOR_CARGA = 0.75;
 
@@ -12,9 +12,10 @@ public class TabelaHash<K, V> {
     private String tipoFuncaoHash;
 
     // Construtor que define a função de hash (divisao ou DJB2)
+    @SuppressWarnings("unchecked")
     public TabelaHash(String tipoFuncaoHash) {
         this.capacidade = TAMANHO_INICIAL;
-        this.tabela = new EntradaHash[capacidade];
+        this.tabela = (EntradaHash<K, V>[]) new EntradaHash[capacidade];
         this.tipoFuncaoHash = tipoFuncaoHash.toLowerCase();
         this.tamanho = 0;
     }
@@ -32,28 +33,44 @@ public class TabelaHash<K, V> {
         }
     }
 
-    // Método para inserir um elemento na tabela hash
-    public void inserir(K chave, V valor) {
-        int indice = calcularIndice(chave);
-        EntradaHash<K, V> novaEntrada = new EntradaHash<>(chave, valor, null);
+    // Classe interna para armazenar valor e caminho da árvore (Genérica)
+    public static class ValorComArvore<T> {
+        private T valor;
+        private String caminhoArvore;
 
-        if (tabela[indice] == null) {
-            tabela[indice] = novaEntrada;
-        } else {
-            EntradaHash<K, V> atual = tabela[indice];
-            while (atual != null) {
-                if (atual.chave.equals(chave)) {
-                    // Atualiza o valor se a chave já existir
-                    atual.valor = valor;
-                    return;
-                }
-                if (atual.proximo == null) {
-                    atual.proximo = novaEntrada;
-                    break;
-                }
-                atual = atual.proximo;
-            }
+        public ValorComArvore(T valor, String caminhoArvore) {
+            this.valor = valor;
+            this.caminhoArvore = caminhoArvore;
         }
+
+        public T getValor() {
+            return valor;
+        }
+
+        public String getCaminhoArvore() {
+            return caminhoArvore;
+        }
+    }
+
+    // Método para inserir um elemento na tabela hash
+    public void inserir(K chave, byte[] valor, String caminhoArvore) {
+        int indice = calcularIndice(chave);
+        EntradaHash<K, V> atual = tabela[indice];
+
+        // Verifica se a chave já existe
+        while (atual != null) {
+            if (Objects.equals(atual.chave, chave)) {
+                // Atualiza o valor existente
+                atual.valor = (V) new ValorComArvore<byte[]>(valor, caminhoArvore);
+                return;
+            }
+            atual = atual.proximo;
+        }
+
+        // Cria uma nova entrada
+        V valorComArvore = (V) new ValorComArvore<byte[]>(valor, caminhoArvore);
+        EntradaHash<K, V> novaEntrada = new EntradaHash<>(chave, valorComArvore, tabela[indice]);
+        tabela[indice] = novaEntrada;
         tamanho++;
 
         // Redimensiona a tabela se necessário
@@ -62,13 +79,13 @@ public class TabelaHash<K, V> {
         }
     }
 
-    // Método para buscar um elemento pela chave
-    public V buscar(K chave) {
+    // Método para buscar com retorno do caminho da árvore
+    public ValorComArvore<byte[]> buscarComArvore(K chave) {
         int indice = calcularIndice(chave);
         EntradaHash<K, V> atual = tabela[indice];
 
         while (atual != null) {
-            if (atual.chave.equals(chave)) {
+            if (Objects.equals(atual.chave, chave)) {
                 return atual.valor;
             }
             atual = atual.proximo;
@@ -76,77 +93,57 @@ public class TabelaHash<K, V> {
         return null; // Retorna null se não encontrar
     }
 
-    // Método para remover um elemento pela chave
-    public void remover(K chave) {
-        int indice = calcularIndice(chave);
-        EntradaHash<K, V> atual = tabela[indice];
-        EntradaHash<K, V> anterior = null;
-
-        while (atual != null) {
-            if (atual.chave.equals(chave)) {
-                if (anterior == null) {
-                    tabela[indice] = atual.proximo;
-                } else {
-                    anterior.proximo = atual.proximo;
-                }
-                tamanho--;
-                return;
-            }
-            anterior = atual;
-            atual = atual.proximo;
-        }
-    }
-
     // Método para calcular o índice baseado na chave e na função de hash escolhida
     private int calcularIndice(K chave) {
-        int hashCode = 0;
+        int hash;
         if (tipoFuncaoHash.equals("divisao")) {
-            hashCode = hashDivisao(chave.toString(), capacidade);
-        } else if (tipoFuncaoHash.equals("djb2")) {
-            hashCode = hashDJB2(chave.toString());
+            hash = hashDivisao(chave.toString(), capacidade);
+        } else {
+            hash = hashDJB2(chave.toString());
         }
-        return Math.abs(hashCode) % capacidade;
+        return Math.abs(hash) % capacidade;
     }
 
     // Função de hash por Divisão conforme especificado
     public int hashDivisao(String texto, int M) {
         int soma = 0;
         for (char c : texto.toCharArray()) {
-            soma += (int) c;
+            soma += c;
         }
         return soma % M;
     }
 
     // Função de hash DJB2 atualizada
     private int hashDJB2(String texto) {
-        long hash = 5381;
+        int hash = 5381;
         for (char c : texto.toCharArray()) {
             hash = ((hash << 5) + hash) + c; // hash * 33 + c
         }
-        return (int) (hash % Integer.MAX_VALUE);
+        return hash;
     }
 
     // Método para redimensionar a tabela quando o fator de carga é excedido
+    @SuppressWarnings("unchecked")
     private void redimensionarTabela() {
         capacidade *= 2;
-        EntradaHash<K, V>[] tabelaAntiga = tabela;
-        tabela = new EntradaHash[capacidade];
-        tamanho = 0;
-
-        for (EntradaHash<K, V> entrada : tabelaAntiga) {
+        EntradaHash<K, V>[] novaTabela = (EntradaHash<K, V>[]) new EntradaHash[capacidade];
+        for (EntradaHash<K, V> entrada : tabela) {
             while (entrada != null) {
-                inserir(entrada.chave, entrada.valor);
-                entrada = entrada.proximo;
+                EntradaHash<K, V> proximo = entrada.proximo;
+                int indice = calcularIndice(entrada.chave);
+                entrada.proximo = novaTabela[indice];
+                novaTabela[indice] = entrada;
+                entrada = proximo;
             }
         }
+        tabela = novaTabela;
     }
 
-    // Método para obter o número de elementos na tabela
+    // Métodos para obter o número de elementos e verificar se a tabela está vazia
     public int getTamanho() {
         return tamanho;
     }
 
-    // Método para verificar se a tabela está vazia
     public boolean estaVazia() {
         return tamanho == 0;
     }
