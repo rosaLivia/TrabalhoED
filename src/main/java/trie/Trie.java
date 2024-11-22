@@ -16,6 +16,7 @@ public class Trie {
         palavra = palavra.toLowerCase();
         palavra = Normalizer.normalize(palavra, Normalizer.Form.NFD);
         palavra = palavra.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+        palavra = palavra.replaceAll("[^a-z0-9]", ""); // Remove não alfanuméricos
         return palavra;
     }
 
