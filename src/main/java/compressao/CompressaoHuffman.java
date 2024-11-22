@@ -14,96 +14,95 @@ public class CompressaoHuffman {
         tabelaHuffman = new HashMap<>();
     }
 
-    // Método para construir a árvore de Huffman e gerar a tabela de códigos
+    // Método para construir a árvore de Huffman
     private void construirArvore(String texto) {
         Map<Character, Integer> frequencias = new HashMap<>();
         for (char c : texto.toCharArray()) {
             frequencias.put(c, frequencias.getOrDefault(c, 0) + 1);
         }
 
-        PriorityQueue<NoHuffman> fila = new PriorityQueue<>();
-        for (Map.Entry<Character, Integer> entrada : frequencias.entrySet()) {
-            fila.add(new NoHuffman(entrada.getKey(), entrada.getValue()));
+        PriorityQueue<NoHuffman> pq = new PriorityQueue<>();
+        for (Map.Entry<Character, Integer> entry : frequencias.entrySet()) {
+            pq.add(new NoHuffman(entry.getKey(), entry.getValue()));
         }
 
-        while (fila.size() > 1) {
-            NoHuffman no1 = fila.poll();
-            NoHuffman no2 = fila.poll();
-
-            NoHuffman novoNo = new NoHuffman('\0', no1.frequencia + no2.frequencia);
-            novoNo.esquerda = no1;
-            novoNo.direita = no2;
-
-            fila.add(novoNo);
+        while (pq.size() > 1) {
+            NoHuffman esquerda = pq.poll();
+            NoHuffman direita = pq.poll();
+            NoHuffman pai = new NoHuffman('\0', esquerda.frequencia + direita.frequencia);
+            pai.esquerda = esquerda;
+            pai.direita = direita;
+            pq.add(pai);
         }
 
-        raiz = fila.poll();
-
-        gerarCodigos(raiz, "");
-    }
-
-    // Método recursivo para gerar os códigos de Huffman para cada caractere
-    private void gerarCodigos(NoHuffman no, String codigo) {
-        if (no != null) {
-
-            if (no.esquerda == null && no.direita == null) {
-                tabelaHuffman.put(no.caractere, codigo);
-            }
-            gerarCodigos(no.esquerda, codigo + "0");
-            gerarCodigos(no.direita, codigo + "1");
-        }
+        raiz = pq.poll();
     }
 
     // Método para comprimir o texto
     public byte[] comprimir(String texto) {
         construirArvore(texto);
+        gerarCodigos(raiz, "");
+
         StringBuilder textoCodificado = new StringBuilder();
         for (char c : texto.toCharArray()) {
             textoCodificado.append(tabelaHuffman.get(c));
         }
 
-        // Converter a sequência de bits em um array de bytes
-        int comprimento = textoCodificado.length();
-        BitSet bits = new BitSet(comprimento);
-        for (int i = 0; i < comprimento; i++) {
+        // Converter a sequência de bits em array de bytes
+        BitSet bits = new BitSet(textoCodificado.length());
+        for (int i = 0; i < textoCodificado.length(); i++) {
             if (textoCodificado.charAt(i) == '1') {
                 bits.set(i);
             }
         }
 
-        // Converter BitSet em array de bytes
-        byte[] bytes = bits.toByteArray();
+        // Salvar a árvore de Huffman
+        // Nota: Este passo deve ser feito externamente em Main.java após a compressão
 
-        return bytes;
+        return bits.toByteArray();
     }
 
     // Método para descomprimir o texto
     public String descomprimir(byte[] bytes) {
-        // Converter array de bytes em sequência de bits
-        BitSet bits = BitSet.valueOf(bytes);
-        StringBuilder textoDescomprimido = new StringBuilder();
+        try {
+            // Remover a chamada incorreta de carregarArvore()
+            // carregarArvore();
 
-        NoHuffman noAtual = raiz;
-        for (int i = 0; i <= bits.length(); i++) {
-            boolean bit = bits.get(i);
-            if (bit) {
-                noAtual = noAtual.direita;
-            } else {
-                noAtual = noAtual.esquerda;
+            // Converter array de bytes em sequência de bits
+            BitSet bits = BitSet.valueOf(bytes);
+            StringBuilder textoCodificado = new StringBuilder();
+            for (int i = 0; i < bits.length(); i++) {
+                textoCodificado.append(bits.get(i) ? '1' : '0');
             }
 
-            if (noAtual.esquerda == null && noAtual.direita == null) {
-                textoDescomprimido.append(noAtual.caractere);
-                noAtual = raiz;
+            // Decodificar a sequência de bits usando a árvore de Huffman
+            StringBuilder textoDescomprimido = new StringBuilder();
+            NoHuffman atual = raiz;
+            for (char bit : textoCodificado.toString().toCharArray()) {
+                if (bit == '0') {
+                    atual = atual.esquerda;
+                } else {
+                    atual = atual.direita;
+                }
+
+                if (atual.esquerda == null && atual.direita == null) {
+                    textoDescomprimido.append(atual.caractere);
+                    atual = raiz;
+                }
             }
+
+            return textoDescomprimido.toString();
+        } catch (Exception e) { // Alterado para capturar todas as exceções relevantes
+            System.out.println("Erro durante a descompressão: " + e.getMessage());
+            return "";
         }
-
-        return textoDescomprimido.toString();
     }
 
-    // Método para salvar a árvore de Huffman em um arquivo
-    public void salvarArvore(ObjectOutputStream out) throws IOException {
-        salvarNo(out, raiz);
+    // Método para salvar a árvore de Huffman
+    public void salvarArvore(String caminhoArquivo) throws IOException {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(caminhoArquivo))) {
+            salvarNo(out, raiz);
+        }
     }
 
     private void salvarNo(ObjectOutputStream out, NoHuffman no) throws IOException {
@@ -118,24 +117,37 @@ public class CompressaoHuffman {
         salvarNo(out, no.direita);
     }
 
-    // Método para carregar a árvore de Huffman de um arquivo
-    public void carregarArvore(ObjectInputStream in) throws IOException {
-        raiz = carregarNo(in);
-        tabelaHuffman = new HashMap<>();
-        gerarCodigos(raiz, "");
+    // Método para carregar a árvore de Huffman
+    public void carregarArvore(String caminhoArquivo) throws IOException {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(caminhoArquivo))) {
+            raiz = carregarNo(in);
+        }
     }
 
     private NoHuffman carregarNo(ObjectInputStream in) throws IOException {
-        boolean temNo = in.readBoolean();
-        if (!temNo) {
+        try {
+            if (!in.readBoolean()) {
+                return null;
+            }
+            char caractere = in.readChar();
+            int frequencia = in.readInt();
+            NoHuffman no = new NoHuffman(caractere, frequencia);
+            no.esquerda = carregarNo(in);
+            no.direita = carregarNo(in);
+            return no;
+        } catch (EOFException e) {
             return null;
         }
-        char caractere = in.readChar();
-        int frequencia = in.readInt();
-        NoHuffman no = new NoHuffman(caractere, frequencia);
-        no.esquerda = carregarNo(in);
-        no.direita = carregarNo(in);
-        return no;
+    }
+
+    private void gerarCodigos(NoHuffman no, String codigo) {
+        if (no != null) {
+            if (no.caractere != '\0') {
+                tabelaHuffman.put(no.caractere, codigo);
+            }
+            gerarCodigos(no.esquerda, codigo + "0");
+            gerarCodigos(no.direita, codigo + "1");
+        }
     }
 
 }
