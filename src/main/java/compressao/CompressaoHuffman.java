@@ -48,7 +48,7 @@ public class CompressaoHuffman {
             textoCodificado.append(tabelaHuffman.get(c));
         }
 
-        // Converter a sequência de bits em array de bytes
+        // Convertendo a sequência de bits em array de bytes
         BitSet bits = new BitSet(textoCodificado.length());
         for (int i = 0; i < textoCodificado.length(); i++) {
             if (textoCodificado.charAt(i) == '1') {
@@ -56,26 +56,21 @@ public class CompressaoHuffman {
             }
         }
 
-        // Salvar a árvore de Huffman
-        // Nota: Este passo deve ser feito externamente em Main.java após a compressão
-
         return bits.toByteArray();
     }
 
     // Método para descomprimir o texto
     public String descomprimir(byte[] bytes) {
         try {
-            // Remover a chamada incorreta de carregarArvore()
-            // carregarArvore();
 
-            // Converter array de bytes em sequência de bits
+            // Convertendo array de bytes em sequência de bits
             BitSet bits = BitSet.valueOf(bytes);
             StringBuilder textoCodificado = new StringBuilder();
             for (int i = 0; i < bits.length(); i++) {
                 textoCodificado.append(bits.get(i) ? '1' : '0');
             }
 
-            // Decodificar a sequência de bits usando a árvore de Huffman
+            // Decodificando a sequência de bits usando a árvore de Huffman
             StringBuilder textoDescomprimido = new StringBuilder();
             NoHuffman atual = raiz;
             for (char bit : textoCodificado.toString().toCharArray()) {
@@ -92,7 +87,7 @@ public class CompressaoHuffman {
             }
 
             return textoDescomprimido.toString();
-        } catch (Exception e) { // Alterado para capturar todas as exceções relevantes
+        } catch (Exception e) {
             System.out.println("Erro durante a descompressão: " + e.getMessage());
             return "";
         }

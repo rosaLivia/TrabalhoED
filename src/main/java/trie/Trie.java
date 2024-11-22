@@ -11,16 +11,17 @@ public class Trie {
         this.raiz = new TrieNode();
     }
 
-    // Normaliza a palavra (remove acentuação e converte para minúsculas)
+    // Normalizando a palavra (remove acentuação, não alfanumericos e converte para
+    // minúsculas)
     private String normalizarPalavra(String palavra) {
         palavra = palavra.toLowerCase();
         palavra = Normalizer.normalize(palavra, Normalizer.Form.NFD);
         palavra = palavra.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
-        palavra = palavra.replaceAll("[^a-z0-9]", ""); // Remove não alfanuméricos
+        palavra = palavra.replaceAll("[^a-z0-9]", "");
         return palavra;
     }
 
-    // Insere uma palavra na Trie, associando-a a um documento
+    // Inserindo uma palavra na Trie, associando-a a um documento
     public void inserir(String palavra, String documentoId) {
         palavra = normalizarPalavra(palavra);
         TrieNode noAtual = raiz;
@@ -32,7 +33,7 @@ public class Trie {
         noAtual.getDocumentos().add(documentoId);
     }
 
-    // Busca uma palavra na Trie e retorna a lista de documentos onde aparece
+    // Buscando uma palavra na Trie e retornando a lista de documentos onde aparece
     public List<String> buscar(String palavra) {
         palavra = normalizarPalavra(palavra);
         TrieNode noAtual = raiz;
@@ -40,7 +41,8 @@ public class Trie {
         for (char caractere : palavra.toCharArray()) {
             noAtual = noAtual.getFilhos().get(caractere);
             if (noAtual == null) {
-                return new ArrayList<>(); // Palavra não encontrada
+                // Caso onde a palavra não for encontrada
+                return new ArrayList<>();
             }
         }
 

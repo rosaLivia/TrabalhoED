@@ -27,7 +27,7 @@ public class Main {
         System.out.println("2 - DJB2");
         System.out.print("Opção: ");
         int opcaoHash = scanner.nextInt();
-        scanner.nextLine(); // Consumir a quebra de linha
+        scanner.nextLine(); 
 
         if (opcaoHash == 1) {
             tipoFuncaoHash = "divisao";
@@ -37,11 +37,11 @@ public class Main {
 
         tabelaHash = new TabelaHash<>(tipoFuncaoHash);
 
-        // Medir tempo de indexação
+        // Medindo tempo de indexação
         long inicioIndexacao = System.currentTimeMillis();
         long memoriaInicialIndexacao = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
-        // Processar os documentos
+        // Processando os documentos
         File pasta = new File(diretorioDocumentos);
         File[] listaArquivos = pasta.listFiles((dir, name) -> name.endsWith(".txt"));
 
@@ -54,14 +54,14 @@ public class Main {
 
                     String caminhoArvore = arquivo.getAbsolutePath() + ".huff";
 
-                    // Comprimir o conteúdo e salvar a árvore
+                    // Comprimindo o conteúdo e salvando a árvore
                     byte[] conteudoComprimido = compressao.comprimir(String.join(" ", palavras));
                     compressao.salvarArvore(caminhoArvore);
 
-                    // Inserir na tabela hash
+                    // Inseririndo na tabela hash
                     tabelaHash.inserir(arquivo.getName(), conteudoComprimido, caminhoArvore);
 
-                    // Inserir palavras na trie
+                    // Inseririndo palavras na trie
                     for (String palavra : palavras) {
                         trie.inserir(palavra, arquivo.getName());
                     }
@@ -89,11 +89,11 @@ public class Main {
                 break;
             }
 
-            // Medir tempo de busca
+            // Medindo tempo de busca
             long inicioBusca = System.currentTimeMillis();
             long memoriaInicialBusca = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
-            // Buscar nos documentos
+            // Buscando nos documentos
             var documentosEncontrados = trie.buscar(palavraBusca);
             if (documentosEncontrados.isEmpty()) {
                 System.out.println("Palavra não encontrada nos documentos.");
@@ -117,7 +117,7 @@ public class Main {
                             TabelaHash.ValorComArvore<byte[]> valorComArvore = tabelaHash
                                     .buscarComArvore(documentoSelecionado);
                             if (valorComArvore != null) {
-                                // Carregar a árvore de Huffman correspondente
+                                // Carregando a árvore de Huffman correspondente
                                 compressao.carregarArvore(valorComArvore.getCaminhoArvore());
 
                                 String conteudoDescomprimido = compressao.descomprimir(valorComArvore.getValor());

@@ -11,7 +11,7 @@ import java.util.List;
 public class ProcessadorDeDocumentos {
     private String conteudo;
 
-    // Carrega um documento TXT cuidando do encoding UTF-8
+    // Carregando um documento TXT cuidando do encoding UTF-8
     public void carregarDocumento(String caminhoArquivo) throws IOException {
         StringBuilder sb = new StringBuilder();
         try (BufferedReader br = new BufferedReader(
@@ -24,21 +24,21 @@ public class ProcessadorDeDocumentos {
         conteudo = sb.toString();
     }
 
-    // Processa o documento carregado: limpa, normaliza e separa em palavras
+    // Processando o documento carregado: limpa, normaliza e separa em palavras
     public List<String> processarDocumento() {
         if (conteudo == null || conteudo.isEmpty()) {
             return new ArrayList<>();
         }
 
-        // Normalizar texto: remover acentos e caracteres especiais
+        // Normalizando texto: removendo acentos e caracteres especiais
         String textoNormalizado = Normalizer.normalize(conteudo, Normalizer.Form.NFD)
                 .replaceAll("[\\p{InCombiningDiacriticalMarks}]", "")
                 .toLowerCase();
 
-        // Remover caracteres não alfanuméricos
+        // Removendo caracteres não alfanuméricos
         textoNormalizado = textoNormalizado.replaceAll("[^\\p{L}\\p{N}\\s]", " ");
 
-        // Dividir em palavras usando espaço como delimitador
+        // Dividindo em palavras usando espaço como delimitador
         String[] palavrasArray = textoNormalizado.split("\\s+");
 
         List<String> palavras = new ArrayList<>();
@@ -50,6 +50,7 @@ public class ProcessadorDeDocumentos {
 
         return palavras;
     }
+
     public String getConteudo() {
         return conteudo;
     }
