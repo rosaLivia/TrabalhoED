@@ -108,6 +108,11 @@ public class Main {
             System.out.println("Tempo de busca: " + (fimBusca - inicioBusca) + " ms");
             System.out.println("Consumo de memória na busca: "
                     + (memoriaFinalBusca - memoriaInicialBusca) / (1024 * 1024) + " MB");
+
+            System.out.println("Digite o arquivo que deseja descompactar (ou 'sair' para encerrar):");
+            String arquivoBusca = scanner.nextLine();
+            byte[] compresso = tabelaHash.buscar(arquivoBusca);
+            System.out.println((compressao.descomprimir(compresso)));
         }
 
         scanner.close();
