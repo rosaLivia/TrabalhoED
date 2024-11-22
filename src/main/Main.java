@@ -14,7 +14,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         String diretorioDocumentos;
         String tipoFuncaoHash;
-        TabelaHash<String, byte[]> tabelaHash;
+        TabelaHash<String, TabelaHash.ValorComArvore<byte[]>> tabelaHash;
         Trie trie = new Trie();
         CompressaoHuffman compressao = new CompressaoHuffman();
 
@@ -52,18 +52,19 @@ public class Main {
                     processador.carregarDocumento(arquivo.getAbsolutePath());
                     List<String> palavras = processador.processarDocumento();
 
-                    byte[] conteudoComprimido = compressao.comprimir(String.join(" ", palavras));
+                    String caminhoArvore = arquivo.getAbsolutePath() + ".huff";
 
-                    tabelaHash.inserir(arquivo.getName(), conteudoComprimido);
+                    // Comprimir o conteúdo e salvar a árvore
+                    byte[] conteudoComprimido = compressao.comprimir(String.join(" ", palavras));
+                    compressao.salvarArvore(caminhoArvore);
+
+                    // Inserir na tabela hash
+                    tabelaHash.inserir(arquivo.getName(), conteudoComprimido, caminhoArvore);
 
                     // Inserir palavras na trie
                     for (String palavra : palavras) {
-                        if (!palavra.isEmpty()) {
-                            trie.inserir(palavra, arquivo.getName());
-                        }
+                        trie.inserir(palavra, arquivo.getName());
                     }
-
-                    System.out.println("Processado: " + arquivo.getName());
                 } catch (IOException e) {
                     System.out.println("Erro ao processar o arquivo: " + arquivo.getName());
                 }
@@ -98,8 +99,42 @@ public class Main {
                 System.out.println("Palavra não encontrada nos documentos.");
             } else {
                 System.out.println("A palavra '" + palavraBusca + "' foi encontrada nos seguintes documentos:");
+                int index = 1;
                 for (String doc : documentosEncontrados) {
-                    System.out.println("- " + doc);
+                    System.out.println(index + ". " + doc);
+                    index++;
+                }
+
+                // Opção para abrir e ler o conteúdo de um documento
+                System.out.print("Deseja abrir algum documento? (s/n): ");
+                String resposta = scanner.nextLine();
+                if (resposta.equalsIgnoreCase("s")) {
+                    System.out.print("Digite o número do documento que deseja abrir: ");
+                    try {
+                        int escolha = Integer.parseInt(scanner.nextLine());
+                        if (escolha >= 1 && escolha <= documentosEncontrados.size()) {
+                            String documentoSelecionado = documentosEncontrados.get(escolha - 1);
+                            TabelaHash.ValorComArvore<byte[]> valorComArvore = tabelaHash
+                                    .buscarComArvore(documentoSelecionado);
+                            if (valorComArvore != null) {
+                                // Carregar a árvore de Huffman correspondente
+                                compressao.carregarArvore(valorComArvore.getCaminhoArvore());
+
+                                String conteudoDescomprimido = compressao.descomprimir(valorComArvore.getValor());
+                                System.out.println("\n--- Conteúdo do Documento: " + documentoSelecionado + " ---");
+                                System.out.println(conteudoDescomprimido);
+                                System.out.println("--- Fim do Documento ---\n");
+                            } else {
+                                System.out.println("Erro: Documento não encontrado na tabela hash.");
+                            }
+                        } else {
+                            System.out.println("Opção inválida.");
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Entrada inválida.");
+                    } catch (IOException e) {
+                        System.out.println("Erro ao carregar a árvore de Huffman: " + e.getMessage());
+                    }
                 }
             }
 
@@ -108,11 +143,6 @@ public class Main {
             System.out.println("Tempo de busca: " + (fimBusca - inicioBusca) + " ms");
             System.out.println("Consumo de memória na busca: "
                     + (memoriaFinalBusca - memoriaInicialBusca) / (1024 * 1024) + " MB");
-
-            System.out.println("Digite o arquivo que deseja descompactar (ou 'sair' para encerrar):");
-            String arquivoBusca = scanner.nextLine();
-            byte[] compresso = tabelaHash.buscar(arquivoBusca);
-            System.out.println((compressao.descomprimir(compresso)));
         }
 
         scanner.close();
